@@ -1,0 +1,6 @@
+LINUX: apt install libsdl2-mixer-dev
+MACOS: brew install sdl2_mixer
+
+https://www.libsdl.org/projects/SDL_mixer/
+
+
