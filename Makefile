@@ -9,7 +9,7 @@ LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3
 
 TARGET = bin/engine
 SRC_FILES = src/*.cpp
-OBJ_FILES = obj/main.o
+OBJ_FILES = obj/main.o obj/game.o
 
 #-------------------------------------------------------------------------------
 # make                  makes executable
@@ -31,6 +31,9 @@ build : $(OBJ_FILES)
 
 obj/main.o : src/main.cpp
 	$(CC) $(CFLAGS) $(INC_PATH) -c src/main.cpp -o obj/main.o
+
+obj/game.o : src/game.cpp
+	$(CC) $(CFLAGS) $(INC_PATH) -c src/game.cpp -o obj/game.o
 
 
 # make run ---------------------------------------------------------------------
