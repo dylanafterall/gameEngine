@@ -1,0 +1,4 @@
+LINUX: sudo apt install libspdlog-dev
+MACOS: brew install spdlog
+
+https://github.com/gabime/spdlog
