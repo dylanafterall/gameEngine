@@ -1,4 +1,17 @@
-#include "logger.h"
+/*
+ * author: Dylan Campbell
+ * contact: campbell.dyl@gmail.com
+ * project: 2d game engine
+ *
+ * This program contains source code from Gustavo Pezzi's "C++ 2D Game Engine
+ * Development" course, found here: https://pikuma.com/courses
+*/
+
+// -----------------------------------------------------------------------------
+// logger.cpp
+// implementation file for logger class
+// -----------------------------------------------------------------------------
+#include "headers/logger.h"
 #include <iostream>
 #include <string>
 #include <chrono>
@@ -13,7 +26,6 @@ std::string CurrentDateTimeToString() {
     return output;
 }
 
-// display log messages in green
 void Logger::Log(const std::string& message) {
     LogEntry logEntry;
     logEntry.type = LOG_INFO;
@@ -22,11 +34,10 @@ void Logger::Log(const std::string& message) {
     messages.push_back(logEntry);
 }
 
-// display error messages in red
 void Logger::Err(const std::string& message) {
     LogEntry logEntry;
-    logEntry.type = LOG_ERROR; 
+    logEntry.type = LOG_ERROR;
     logEntry.message = "ERR: [" + CurrentDateTimeToString() + "]: " + message;
-    std::cerr << "\x1B[91m" << logEntry.message << "\033[0m" << std::endl;
     messages.push_back(logEntry);
+    std::cerr << "\x1B[91m"<< logEntry.message << "\033[0m" << std::endl;
 }

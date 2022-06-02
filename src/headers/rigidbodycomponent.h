@@ -8,17 +8,20 @@
 */
 
 // -----------------------------------------------------------------------------
-// main.cpp
-// main program
+// rigidbodycomponent.h
+// header file for rigid-body component
 // -----------------------------------------------------------------------------
-#include "headers/game.h"
+#ifndef RIGIDBODYCOMPONENT_H
+#define RIGIDBODYCOMPONENT_H
 
-int main(int argc, char* argv[]) {
-    Game game;
+#include <glm/glm.hpp>
 
-    game.Initialize();
-    game.Run();
-    game.Destroy();
+struct RigidBodyComponent {
+    glm::vec2 velocity;
 
-    return 0;
-}
+    RigidBodyComponent(glm::vec2 velocity = glm::vec2(0.0, 0.0)) {
+        this->velocity = velocity;
+    }
+};
+
+#endif

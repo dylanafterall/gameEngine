@@ -1,29 +1,45 @@
-#include "game.h"   
+/*
+ * author: Dylan Campbell
+ * contact: campbell.dyl@gmail.com
+ * project: 2d game engine
+ *
+ * This program contains source code from Gustavo Pezzi's "C++ 2D Game Engine
+ * Development" course, found here: https://pikuma.com/courses
+*/
+
+// -----------------------------------------------------------------------------
+// game.cpp
+// implementation file for game class
+// -----------------------------------------------------------------------------
+#include "headers/game.h"
+#include "headers/ecs.h"
+#include "headers/transformcomponent.h"
+#include "headers/rigidbodycomponent.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
-#include <iostream>
 #include <spdlog/spdlog.h>
-
+#include <iostream>
 
 Game::Game() {
     isRunning = false;
+    registry = std::make_unique<Registry>();
     spdlog::info("Game constructor called!");
 }
 
 Game::~Game() {
-    spdlog::info("Game destructor called!");
+    spdlog::info("Game destructor called!");   
 }
 
 void Game::Initialize() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        spdlog::critical("Error initializing SDL.");
+        spdlog::error("Error initializing SDL.");
         return;
     }
     SDL_DisplayMode displayMode;
     SDL_GetCurrentDisplayMode(0, &displayMode);
-    windowWidth = 800; //displayMode.w;
-    windowHeight = 600; //displayMode.h;
+    windowWidth = displayMode.w;
+    windowHeight = displayMode.h;
     window = SDL_CreateWindow(
         NULL,
         SDL_WINDOWPOS_CENTERED,
@@ -33,29 +49,16 @@ void Game::Initialize() {
         SDL_WINDOW_BORDERLESS
     );
     if (!window) {
-        spdlog::critical("Error creating SDL window.");
+        spdlog::error("Error creating SDL window.");
         return;
     }
-    renderer = SDL_CreateRenderer(
-        window, 
-        -1, 
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-    );
+    renderer = SDL_CreateRenderer(window, -1, 0);
     if (!renderer) {
-        spdlog::critical("Error creating SDL renderer.");
+        spdlog::error("Error creating SDL renderer.");
         return;
     }
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     isRunning = true;
-}
-
-void Game::Run() {
-    Setup();
-    while (isRunning) {
-        ProcessInput();
-        Update();
-        Render();
-    }
 }
 
 void Game::ProcessInput() {
@@ -74,53 +77,53 @@ void Game::ProcessInput() {
     }
 }
 
-glm::vec2 playerPosition;
-glm::vec2 playerVelocity;
-
 void Game::Setup() {
-    playerPosition = glm::vec2(10.0f, 20.0f);
-    playerVelocity = glm::vec2(100.0f, 0.0f);
+    // create an entity
+    Entity tank = registry->CreateEntity();
+
+    // add some components to that entity
+    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+    tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 50.0));
+
+    // remove a component from the entity
+    tank.RemoveComponent<TransformComponent>();
 }
 
 void Game::Update() {
-    // if too fast, waste some time until we reach MILLISECS_PER_FRAME
-    // if desired, remove this block - jump to deltaTime for uncapped FPS
+    // if we are too fast, waste some time until we reach the MILLISECS_PER_FRAME
     int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame);
     if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME) {
         SDL_Delay(timeToWait);
     }
 
-    // difference in ticks since the last frame, converted to seconds
-    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0f;
+    // the difference in ticks since the last frame, converted to seconds
+    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
 
-    // store the current frame time
+    // store the "previous" frame time
     millisecsPreviousFrame = SDL_GetTicks();
-
-    playerPosition.x += playerVelocity.x * deltaTime;
-    playerPosition.y += playerVelocity.y * deltaTime;
+    
+    // TODO:
+    // MovementSystem.Update();
+    // CollisionSystem.Update();
+    // DamageSystem.Update();
 }
 
 void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
     SDL_RenderClear(renderer);
 
-    // draw a PNG texture
-    SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    // no longer need surface now that we have texture
-    SDL_FreeSurface(surface);
-    // destination for texture on screen (x, y, w, h)
-    SDL_Rect dstRect = {
-        static_cast<int>(playerPosition.x), 
-        static_cast<int>(playerPosition.y), 
-        32, 
-        32
-    };
-    // (renderer, texture, srcRect -NULL for full texture-, dstRect)
-    SDL_RenderCopy(renderer, texture, NULL, &dstRect);
-    SDL_DestroyTexture(texture);
+    // TODO: Render game objects...
 
     SDL_RenderPresent(renderer);
+}
+
+void Game::Run() {
+    Setup();
+    while (isRunning) {
+        ProcessInput();
+        Update();
+        Render();
+    }
 }
 
 void Game::Destroy() {

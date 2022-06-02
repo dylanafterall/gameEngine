@@ -4,13 +4,14 @@
 
 CC = g++
 CFLAGS = -std=c++17 -Wall
-INC_PATH = -I"./src/headers/" -I"./lib/"
+INC_PATH = -I"./lib/" -I"./src/headers/"
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3 -lspdlog
 
 TARGET = bin/engine
 SRC_FILES = src/*.cpp
 OBJ_FILES = obj/main.o \
-			obj/game.o
+			obj/game.o \
+			obj/ecs.o
 
 #-------------------------------------------------------------------------------
 # make                  makes executable
@@ -35,6 +36,9 @@ obj/main.o : src/main.cpp
 
 obj/game.o : src/game.cpp src/headers/game.h
 	$(CC) $(CFLAGS) $(INC_PATH) -c src/game.cpp -o obj/game.o
+
+obj/ecs.o : src/ecs.cpp src/headers/ecs.h
+	$(CC) $(CFLAGS) $(INC_PATH) -c src/ecs.cpp -o obj/ecs.o
 
 
 # make run ---------------------------------------------------------------------
