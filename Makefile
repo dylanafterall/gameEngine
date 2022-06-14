@@ -11,7 +11,9 @@ TARGET = bin/engine
 SRC_FILES = src/*.cpp
 OBJ_FILES = obj/main.o \
 			obj/game.o \
-			obj/ecs.o
+			obj/ecs.o \
+			obj/assetstore.o
+
 
 #-------------------------------------------------------------------------------
 # make                  makes executable
@@ -39,6 +41,9 @@ obj/game.o : src/game.cpp src/headers/game.h
 
 obj/ecs.o : src/ecs.cpp src/headers/ecs.h
 	$(CC) $(CFLAGS) $(INC_PATH) -c src/ecs.cpp -o obj/ecs.o
+
+obj/assetstore.o : src/assetstore.cpp src/headers/assetstore.h
+	$(CC) $(CFLAGS) $(INC_PATH) -c src/assetstore.cpp -o obj/assetstore.o
 
 
 # make run ---------------------------------------------------------------------
