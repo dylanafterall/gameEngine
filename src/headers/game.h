@@ -16,6 +16,7 @@
 
 #include "ecs.h"
 #include "assetstore.h"
+#include "eventbus.h"
 #include <SDL2/SDL.h>
 
 const int FPS = 60;
@@ -46,6 +47,7 @@ private:
 
     std::unique_ptr<Registry> registry;
     std::unique_ptr<AssetStore> assetStore;
+    std::unique_ptr<EventBus> eventBus;
 };
 
 #endif

@@ -3,7 +3,7 @@
 #    gameEngine
 
 CC = g++
-CFLAGS = -std=c++17 -Wall
+CFLAGS = -std=c++17 
 INC_PATH = -I"./lib/" -I"./src/headers/"
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua5.3 -lspdlog
 

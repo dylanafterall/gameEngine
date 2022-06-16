@@ -15,6 +15,8 @@
 #define COLLISIONSYSTEM_H
 
 #include "ecs.h"
+#include "eventbus.h"
+#include "collisionevent.h"
 #include "boxcollidercomponent.h"
 #include "transformcomponent.h"
 #include <spdlog/spdlog.h>
@@ -26,7 +28,7 @@ public:
         RequireComponent<BoxColliderComponent>();
     }
 
-    void Update() {
+    void Update(std::unique_ptr<EventBus>& eventBus) {
         // check all entities to see if colliding with each other
         auto entities = GetSystemEntities();
 
@@ -62,8 +64,7 @@ public:
 
                 if (collisionHappened) {
                     spdlog::info("Entity " + std::to_string(a.GetId()) + " is colliding with entity " + std::to_string(b.GetId()));
-
-                    // TODO: emit an event
+                    eventBus->EmitEvent<CollisionEvent>(a, b);
                 }
             }
         }
