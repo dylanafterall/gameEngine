@@ -68,19 +68,27 @@ public:
     Entity(const Entity& entity) = default;
     void Kill();
     int GetId() const;
-       
+
+    // manage entity tags and groups
+    void Tag(const std::string& tag);
+    bool HasTag(const std::string& tag) const;
+    void Group(const std::string& group);
+    bool BelongsToGroup(const std::string& group) const;
+ 
+    // operator overloading for entity objects
     Entity& operator =(const Entity& other) = default;
     bool operator ==(const Entity& other) const { return id == other.id; }
     bool operator !=(const Entity& other) const { return id != other.id; }
     bool operator >(const Entity& other) const { return id > other.id; }
     bool operator <(const Entity& other) const { return id < other.id; }
 
+    // manage entity components
     template <typename TComponent, typename ...TArgs> void AddComponent(TArgs&& ...args);
     template <typename TComponent> void RemoveComponent();
     template <typename TComponent> bool HasComponent() const;
     template <typename TComponent> TComponent& GetComponent() const;
 
-    // Hold a pointer to the entity's owner registry
+    // hold a pointer to the entity's owner registry
     class Registry* registry;
 
 private:
@@ -168,20 +176,32 @@ public:
         spdlog::info("Registry destructor called");
     }
 
-    // The registry Update() finally processes the entities that are waiting to be added/killed to the systems
+    // the registry Update() finally processes the entities that are waiting to be added/killed to the systems
     void Update();
         
-    // Entity management
+    // entity management
     Entity CreateEntity();
     void KillEntity(Entity entity);
 
-    // Component management
+    // tag management
+    void TagEntity(Entity entity, const std::string& tag);
+    bool EntityHasTag(Entity entity, const std::string& tag) const;
+    Entity GetEntityByTag(const std::string& tag) const;
+    void RemoveEntityTag(Entity entity);
+
+    // group management
+    void GroupEntity(Entity entity, const std::string& group);
+    bool EntityBelongsToGroup(Entity entity, const std::string& group) const;
+    std::vector<Entity> GetEntitiesByGroup(const std::string& group) const;
+    void RemoveEntityGroup(Entity entity);
+
+    // component management
     template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
     template <typename TComponent> void RemoveComponent(Entity entity);
 	template <typename TComponent> bool HasComponent(Entity entity) const;
     template <typename TComponent> TComponent& GetComponent(Entity entity) const;
 
-    // System management
+    // system management
     template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
     template <typename TSystem> void RemoveSystem();
     template <typename TSystem> bool HasSystem() const;
@@ -191,28 +211,36 @@ public:
     void AddEntityToSystems(Entity entity);
     void RemoveEntityFromSystems(Entity entity);
 
-    // list of free (available) entity ids that were previously removed
-    std::deque<int> freeIds;
-
 private:
     int numEntities = 0;
 
-    // Vector of component pools, each pool contains all the data for a certain compoenent type
+    // vector of component pools, each pool contains all the data for a certain compoenent type
     // [Vector index = component type id]
     // [Pool index = entity id]
     std::vector<std::shared_ptr<IPool>> componentPools;
 
-    // Vector of component signatures per entity, saying which component is turned "on" for a given entity
+    // vector of component signatures per entity, saying which component is turned "on" for a given entity
     // [Vector index = entity id]
     std::vector<Signature> entityComponentSignatures;
 
-    // Map of active systems
+    // map of active systems
     // [Map key = system type id]
     std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 
-    // Set of entities that are flagged to be added or removed in the next registry Update()
+    // set of entities that are flagged to be added or removed in the next registry Update()
     std::set<Entity> entitiesToBeAdded;
     std::set<Entity> entitiesToBeKilled;
+
+    // entity tags (one tag name per entity)
+    std::unordered_map<std::string, Entity> entityPerTag;
+    std::unordered_map<int, std::string> tagPerEntity;
+
+    // entity groups (a set of entities per group name
+    std::unordered_map<std::string, std::set<Entity>> entitiesPerGroup;
+    std::unordered_map<int, std::string> groupPerEntity;
+
+    // list of free (available) entity ids that were previously removed
+    std::deque<int> freeIds;
 };
 
 
