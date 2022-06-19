@@ -209,8 +209,19 @@ void Registry::Update() {
         RemoveEntityFromSystems(entity);
         entityComponentSignatures[entity.GetId()].reset();
 
+        // remove the entity from the component pools
+        for (auto pool : componentPools) {
+            if (pool) {
+                pool->RemoveEntityFromPool(entity.GetId());
+            }
+        }
+
         // make the entity id available to be reused
         freeIds.push_back(entity.GetId());
+
+        // remove any traces of that entity from the tag/group maps
+        RemoveEntityTag(entity);
+        RemoveEntityGroup(entity);
     }
     entitiesToBeKilled.clear();
 }

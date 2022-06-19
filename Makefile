@@ -20,7 +20,8 @@ OBJ_FILES = obj/main.o \
 # make build			makes all (missing/old) obj files and executable
 # make run              executes binary
 # make clean            removes all object files and executable
-# make check			checks executable for memory errors via valgrind
+# make memcheck			checks memory-management (leaks, mem access, bad free's)
+# make cachegrind		checks cache-profiling (simulates caches to find misses)
 #-------------------------------------------------------------------------------
 
 
@@ -54,6 +55,10 @@ run :
 clean :
 	rm -f $(TARGET) $(OBJ_FILES)
 
-# make check -------------------------------------------------------------------
-check :
-	valgrind --leak-check=full $(TARGET)
+# make memcheck ----------------------------------------------------------------
+memcheck :
+	valgrind --leak-check=yes $(TARGET)
+
+# make cachegrind --------------------------------------------------------------
+cachegrind :
+	valgrind --tool=cachegrind $(TARGET)
