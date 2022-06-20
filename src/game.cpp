@@ -22,6 +22,7 @@
 #include "headers/camerafollowcomponent.h"
 #include "headers/projectileemittercomponent.h"
 #include "headers/healthcomponent.h"
+#include "headers/textlabelcomponent.h"
 #include "headers/movementsystem.h"
 #include "headers/rendersystem.h"
 #include "headers/animationsystem.h"
@@ -32,6 +33,8 @@
 #include "headers/cameramovementsystem.h"
 #include "headers/projectileemitsystem.h"
 #include "headers/projectilelifecyclesystem.h"
+#include "headers/rendertextsystem.h"
+#include "headers/renderhealthbarsystem.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
@@ -62,6 +65,12 @@ void Game::Initialize() {
         spdlog::error("Error initializing SDL.");
         return;
     }
+
+    if (TTF_Init() != 0) {
+        spdlog::error("Error initializing SDL TTF.");
+        return;
+    }
+
     SDL_DisplayMode displayMode;
     SDL_GetCurrentDisplayMode(0, &displayMode);
     windowWidth = displayMode.w;
@@ -125,6 +134,8 @@ void Game::LoadLevel(int level) {
     registry->AddSystem<CameraMovementSystem>();
     registry->AddSystem<ProjectileEmitSystem>();
     registry->AddSystem<ProjectileLifecycleSystem>();
+    registry->AddSystem<RenderTextSystem>();
+    registry->AddSystem<RenderHealthBarSystem>();
 
     // adding assets to the asset store
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -133,6 +144,9 @@ void Game::LoadLevel(int level) {
     assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
     assetStore->AddTexture(renderer, "tilemap-image", "./assets/tilemaps/jungle.png");
     assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
+    assetStore->AddFont("charriot-font", "./assets/fonts/charriot.ttf", 20);
+    assetStore->AddFont("pico8-font-5", "./assets/fonts/pico8.ttf", 5);
+    assetStore->AddFont("pico8-font-10", "./assets/fonts/pico8.ttf", 10);
 
     // load the tilemap (texturePNG and map)
     int tileSize = 32;
@@ -199,6 +213,10 @@ void Game::LoadLevel(int level) {
     truck.AddComponent<BoxColliderComponent>(32, 32);
     truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0.0, 100.0), 2000, 5000, 10, false);
     truck.AddComponent<HealthComponent>(100);
+
+    Entity label = registry->CreateEntity();
+    SDL_Color green = {0, 255, 0};
+    label.AddComponent<TextLabelComponent>(glm::vec2(windowWidth / 2 - 40, 10), "CHOPPER 1.0", "charriot-font", green, true);
 }
 
 void Game::Setup() {
@@ -244,6 +262,8 @@ void Game::Render() {
 
     // ask all the systems to update
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+    registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera);
+    registry->GetSystem<RenderHealthBarSystem>().Update(renderer, assetStore, camera);
     if (isDebug) {
         registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);
     }
